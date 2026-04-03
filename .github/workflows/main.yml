@@ -40,4 +40,4 @@ jobs:
 
       - name: Run OCR
         run: |
-          python ocr_script.py
+          python ocr_script.py txn.jpeg
