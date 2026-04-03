@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install paddleocr paddlepaddle
+          pip install paddleocr==2.7.0.3 paddlepaddle==2.6.0
 
       - name: Run OCR
         run: |
