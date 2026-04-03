@@ -1,12 +1,38 @@
 import os
 import sys
+import cv2
 from paddleocr import PaddleOCR
 
-def run_ocr(image_path, output_file=None):
-    # ✅ Removed show_log (causes crash in some versions)
-    ocr = PaddleOCR(use_angle_cls=True, lang='en')
+# ✅ Initialize OCR once (important for speed)
+ocr = PaddleOCR(
+    use_angle_cls=False,   # 🔥 faster (disable rotation detection)
+    lang='en',
+    det_limit_side_len=960 # 🔥 limit image size for speed
+)
 
-    result = ocr.ocr(image_path)
+def preprocess(image_path):
+    img = cv2.imread(image_path)
+
+    if img is None:
+        print(f"❌ Cannot read image: {image_path}")
+        return None
+
+    # Resize large images (huge speed boost)
+    h, w = img.shape[:2]
+    if w > 1000:
+        scale = 1000 / w
+        img = cv2.resize(img, None, fx=scale, fy=scale)
+
+    return img
+
+
+def run_ocr(image_path, output_file=None):
+    img = preprocess(image_path)
+    if img is None:
+        return []
+
+    # 🔥 Faster call (skip classifier)
+    result = ocr.ocr(img, cls=False)
 
     extracted_texts = []
 
@@ -23,6 +49,7 @@ def run_ocr(image_path, output_file=None):
     for t in extracted_texts:
         print(t)
 
+    # Save output (overwrite each run)
     if output_file:
         with open(output_file, "w", encoding="utf-8") as f:
             f.write("\n".join(extracted_texts))
