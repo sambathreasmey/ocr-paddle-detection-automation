@@ -15,23 +15,21 @@ jobs:
         with:
           python-version: "3.10"
 
-      # ✅ Cache pip dependencies
       - name: Cache pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          key: pip-${{ runner.os }}-v1
           restore-keys: |
             pip-${{ runner.os }}-
 
-      # ✅ Cache PaddleOCR models
       - name: Cache PaddleOCR models
         uses: actions/cache@v4
         with:
           path: ~/.paddleocr
-          key: paddleocr-${{ runner.os }}
+          key: paddleocr-${{ runner.os }}-v1
           restore-keys: |
-            paddleocr-${{ runner.os }}
+            paddleocr-${{ runner.os }}-
 
       - name: Install dependencies
         run: |
@@ -41,3 +39,9 @@ jobs:
       - name: Run OCR
         run: |
           python ocr_script.py txn.jpeg
+
+      - name: Upload OCR result
+        uses: actions/upload-artifact@v4
+        with:
+          name: ocr-result
+          path: output.txt
